@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    #d1 {
+      background-color: orange;
+      width: 500px;
+    }
+
+    #g1 {
+      //transform: translate(50px, 10px);
+    }
+  </style>
+</head>
+<body>
+
+<div id="d1">hello<div>
+  <svg id="container" height=400 width=400, style="border: 1px solid black">
+    <g id="g1"></g>
+  </svg>
+</body>
+<script src="./js/d3.js"></script>
+<script>
+
+  let container = d3.select("#d1");
+  function write(text) {
+      container.append("div").text(text)
+  }
+
+  write("What");
+  d3.csv("data.csv").then(plotChart);
+
+
+  function plotChart(clients) {
+    let max = d3.max(clients, d => d.Weight);
+    write(max);
+
+    let scale = d3.scaleLinear()
+        .range([0, 300])
+        .domain([0, max]);
+
+        let xAxis = d3.axisBottom(scale)
+          //.tick(5)
+          //.tickFormat(d => d + " lb");
+        d3.select("#g1")
+          .style("transform", "translate(50px, 10px)")
+          .call(xAxis);
+  }
+
+
+
+</script>
+</html>

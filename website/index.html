@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="./css/mystyle.css">
+  <style>
+
+  </style>
+
+</head>
+
+<body>
+  <h1> Title </h1>
+  <div id="sContainer"></div>
+  <svg style="border:solid 1px black">
+    <g transform="translate(50,50) rotate(60,50,50)">
+      <rect x=20 y=20 width=50 height=50></rect>
+      <circle r=20 cx=30 cy=30 fill="red"></circle>
+      <text>Text</text>
+    </g>
+  </svg>
+  <br/>
+  <div id="container"></div>
+  <button onclick="addNewClient()">Add</button>
+  <button onclick="removeClient()">Remove</button>
+  <p id="demo"></p>
+  <a href="test.html">Test</a></br>
+  <a href="num_scales.html">Numeric scale</a></br>
+  <a href="ord_scales.html">Ordinal scale</a>
+</body>
+<script src="./js/d3.js"></script>
+<script>
+
+
+  const KG_PER_POUND = 0.45;
+  const METER_PER_INCH = 0.0254;
+
+  let sContainer = d3.select("#sContainer");
+
+  /*
+  d3.csv("data.csv").then(function(data){
+    data.sort((a,b) => {
+      return d3.ascending(b.Name, a.Name)
+    })
+    let filteredData = data.filter(d => {
+      return d.Weight < 200
+    })
+    showData(filteredData)
+  })
+  */
+
+  d3.json("data.json").then(dataLoaded);
+
+  function displayDate() {
+    document.getElementById("demo").innerHTML = Date();
+  }
+
+  function dataLoaded(clients) {
+    clients = clients.map(d => {
+      d.BMI = getBMI(d)
+      return d
+    });
+    showData(clients);
+  }
+
+  function showData(clients){
+    for(let client of clients){
+      //write(client.Name + ", " + client.Weight)
+      write(client.Name + ", " + client.BMI);
+    }
+    write("______________");
+
+    let sum = clients.reduce((prev, curr) => {
+      return prev + curr.BMI
+    }, 0)
+    let mean = sum/clients.length
+
+    let weightSum = d3.sum(clients, (d) => d.Weight);
+    let weightMean = d3.mean(clients, (d) => d.Weight);
+    let extent = d3.extent(clients, (d) => d.Weight);
+
+    write("Sum: " + weightSum);
+    write("Mean: " + weightMean);
+    write("Extent: " + extent);
+  }
+
+  function write(text) {
+    sContainer.append("div").text(text);
+  }
+
+  function getBMI(client) {
+      let weightInKg = client.Weight * KG_PER_POUND;
+      let heightInMeter = client.Height * METER_PER_INCH;
+      let BMI = weightInKg / heightInMeter / heightInMeter;
+      return BMI;
+  }
+
+  let container = d3.select("#container");
+  let apples = [{
+    Name: "Client0"
+  }]
+  let count = 1;
+
+  function addNewClient() {
+      apples.push({ Name: "Client" + count });
+      count += 1;
+      showApple(apples);
+  }
+
+  function removeClient() {
+      apples = apples.slice(0, -1);
+      count -= 1;
+      showApple(apples);
+  }
+
+  function showApple(apples) {
+      let join = container
+          .selectAll("div")
+          .data(apples);
+      join.enter()
+          .append("div")
+          .text(d => d.Name + " - New");
+      join.exit().remove();
+      join.text(d => d.Name + ": Update");
+
+  }
+  showApple(apples);
+
+</script>
+</html>
